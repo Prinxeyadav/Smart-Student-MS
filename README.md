@@ -36,3 +36,5 @@ git push
 
 ## 📸 Preview
 ![App Screenshot](preview.png)
+![App Screenshot](preview2.png)
+![App Screeshot](preview3.png)
