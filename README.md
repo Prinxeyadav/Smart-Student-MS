@@ -1,14 +1,38 @@
-# Smart-Student-MS
-
-[Prince_Kumar_Developer_Guide.docx](https://github.com/user-attachments/files/26094193/Prince_Kumar_Developer_Guide.docx)
-[Prince_Kumar_Developer_Guide.docx](https://github.com/user-attachments/files/26094194/Prince_Kumar_Developer_Guide.docx)
 
 
 
-Use Firebase as backend and firestore to for storing NOSql user data;
-Although i'm working on this project this is completed and deploye but i need sometimes to  upload on github 
-the way to use, and how to deply evrything i will upload maybe the day after tonight;
+# 🚀 Smart Student Management System
+
+## 🌐 Live Demo
+👉 https://your-firebase-link.web.app
+
+## 📌 Features
+- Add student records
+- Calculate CGPA
+- Track attendance
+
+## 🛠 Tech Stack
+- HTML, CSS, JavaScript
+- Firebase
+
+## ⚙️ How to Use
+1. Open the live link above
+2. Use features directly
+
+## 📥 Run Locally
+```bash
+git clone https://github.com/Prinxeyadav/Smart-Student-MS.git
+cd Smart-Student-MS
+open index.html
 
 
 
+Then push it:
 
+```bash
+git add .
+git commit -m "Added README"
+git push
+
+## 📸 Preview
+![App Screenshot](preview.png)
