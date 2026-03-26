@@ -3,17 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartEdu University</title>
+<title>SmartEdu University — SMS v4 | FREA + AI Engine</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
-   SMARTEDU UNIVERSITY — v3.0
-   FIX: Per-user data isolation (users/{uid}/students)
-   UPGRADE: University-level subjects + CGPA + SGPA
-   NEW: Google Sign-In + Forgot Password via email
+   SMARTEDU UNIVERSITY — v4.0
+   PATTERN : FREA (Firebase Real-time Event-driven Architecture)
+   AI ENGINE: Risk Predictor · Anomaly Detection · Study Recommender · NLP Search
+   AUTH    : Email/Password · Google Sign-In · Forgot Password
+   DATA    : Per-user isolation (users/{uid}/students)
+   GRADE   : 10-point CGPA · O/A+/A/B+/B/C/F
+   AUTHOR  : Prince Kumar | Parul University | B.Tech IT
 ═══════════════════════════════════════════════ */
 :root {
   --g1:#0f172a;--g2:#1e293b;--g3:#334155;--g4:#475569;--g5:#94a3b8;--g6:#e2e8f0;--g7:#f8fafc;
@@ -73,6 +76,50 @@ button{cursor:pointer}
 #forgotForm{display:none}
 .back-link{font-size:.82rem;color:var(--g5);cursor:pointer;margin-bottom:1rem;display:inline-flex;align-items:center;gap:4px}
 .back-link:hover{color:var(--g7)}
+
+/* ── AI ENGINE + FREA PATTERN STYLES ─────────────────────── */
+.frea-badge{background:linear-gradient(135deg,rgba(16,185,129,.18),rgba(99,102,241,.18));border:1px solid rgba(16,185,129,.35);border-radius:8px;padding:6px 10px;font-size:.7rem;color:var(--em);text-align:center;margin:.5rem .75rem;font-weight:700;letter-spacing:.6px;cursor:default}
+/* Risk badges */
+.risk-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:.71rem;font-weight:700}
+.risk-high{background:rgba(239,68,68,.18);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.risk-med {background:rgba(251,191,36,.15);color:#fcd34d;border:1px solid rgba(251,191,36,.3)}
+.risk-low {background:rgba(16,185,129,.12);color:#6ee7b7;border:1px solid rgba(16,185,129,.25)}
+/* AI view layout */
+.ai-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;padding:0 1rem 1rem}
+.ai-card{background:var(--g2);border:1px solid var(--g3);border-radius:14px;padding:1.2rem;transition:border-color .2s}
+.ai-card:hover{border-color:var(--em)}
+.ai-card-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.7rem}
+.ai-card-name{font-size:.93rem;font-weight:600;color:var(--g7)}
+.ai-card-id{font-size:.74rem;color:var(--g5);margin-top:2px}
+/* Risk meter bar */
+.risk-meter{height:5px;background:var(--g3);border-radius:100px;margin:.55rem 0;overflow:hidden}
+.risk-fill{height:100%;border-radius:100px;transition:width .7s ease}
+.risk-fill.high{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.risk-fill.med {background:linear-gradient(90deg,#f59e0b,#d97706)}
+.risk-fill.low {background:linear-gradient(90deg,#10b981,#059669)}
+/* Recommendation tags */
+.rec-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:.5rem}
+.rec-tag{background:var(--em3);color:var(--em);border:1px solid rgba(16,185,129,.22);border-radius:6px;padding:3px 8px;font-size:.72rem}
+/* Anomaly flags */
+.anomaly-flag{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);border-radius:8px;padding:.45rem .7rem;font-size:.76rem;color:#fca5a5;margin-top:.5rem;display:flex;align-items:center;gap:5px}
+.anomaly-ok  {background:var(--em4);border:1px solid rgba(16,185,129,.18);border-radius:8px;padding:.45rem .7rem;font-size:.76rem;color:var(--em);margin-top:.5rem;display:flex;align-items:center;gap:5px}
+/* NLP search bar */
+.nlp-wrap{background:var(--g2);border:1.5px solid var(--g3);border-radius:13px;padding:.85rem 1rem;margin:1rem 1rem .4rem;display:flex;gap:.7rem;align-items:center;transition:border-color .2s}
+.nlp-wrap:focus-within{border-color:var(--em)}
+.nlp-wrap input{flex:1;background:none;border:none;outline:none;color:var(--g7);font-size:.88rem;font-family:var(--ff)}
+.nlp-wrap input::placeholder{color:var(--g4)}
+.nlp-chips{display:flex;gap:.45rem;flex-wrap:wrap;padding:0 1rem .6rem}
+.nlp-chip{background:var(--g2);border:1px solid var(--g3);color:var(--g5);border-radius:100px;padding:4px 11px;font-size:.76rem;cursor:pointer;transition:all .15s}
+.nlp-chip:hover{border-color:var(--em);color:var(--em);background:var(--em3)}
+.nlp-result{font-size:.79rem;color:var(--g5);padding:0 1rem .3rem}
+/* AI summary cards on dashboard */
+.ai-dash-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin:.75rem 1rem 0}
+.ai-dash-card{background:var(--g2);border:1px solid var(--g3);border-radius:12px;padding:.9rem;text-align:center;cursor:pointer;transition:border-color .2s}
+.ai-dash-card:hover{border-color:var(--em)}
+.ai-dash-num{font-size:1.6rem;font-weight:700;font-family:var(--fm)}
+.ai-dash-lbl{font-size:.73rem;color:var(--g5);margin-top:.2rem}
+/* AI intro banner */
+.ai-intro{background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(99,102,241,.1));border:1px solid rgba(16,185,129,.22);border-radius:13px;padding:1rem 1.2rem;margin:1rem 1rem .2rem}
 
 /* APP */
 #app{display:none;min-height:100vh}
@@ -395,8 +442,10 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
       <button class="nav-item" onclick="navigate('students')" data-view="students"><span class="nav-icon">👨‍🎓</span> Students <span class="nav-badge" id="studentCountBadge">0</span></button>
       <button class="nav-item" onclick="navigate('grades')" data-view="grades"><span class="nav-icon">📝</span> Grades & CGPA</button>
       <button class="nav-item" onclick="navigate('attendance')" data-view="attendance"><span class="nav-icon">📅</span> Attendance</button>
+      <button class="nav-item" onclick="navigate('ai')" data-view="ai"><span class="nav-icon">🤖</span> AI Engine <span class="nav-badge" style="background:#6366f1">NEW</span></button>
       <div class="nav-section-label" style="margin-top:.5rem">System</div>
       <button class="nav-item" onclick="navigate('settings')" data-view="settings"><span class="nav-icon">⚙️</span> Settings</button>
+      <div class="frea-badge">⚡ FREA Pattern v4.0</div>
     </nav>
     <div class="sidebar-footer">
       <div class="data-scope">🔒 <span id="scopeLabel">Private data scope</span></div>
@@ -456,6 +505,24 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
         </div>
 
         <div class="dash-row">
+        <!-- AI SUMMARY (auto-populated by renderAI) -->
+        </div>
+        <div class="ai-dash-row" id="aiDashRow" style="display:none">
+          <div class="ai-dash-card" onclick="navigate('ai')">
+            <div class="ai-dash-num" style="color:#fca5a5" id="aiDashHigh">0</div>
+            <div class="ai-dash-lbl">⚠️ High Risk</div>
+          </div>
+          <div class="ai-dash-card" onclick="navigate('ai')">
+            <div class="ai-dash-num" style="color:#fcd34d" id="aiDashAnom">0</div>
+            <div class="ai-dash-lbl">🔔 Anomalies</div>
+          </div>
+          <div class="ai-dash-card" onclick="navigate('ai')">
+            <div class="ai-dash-num" style="color:var(--em)" id="aiDashSafe">0</div>
+            <div class="ai-dash-lbl">✅ On Track</div>
+          </div>
+        </div>
+        <div class="dash-row2"><!-- spacer --></div>
+        <div class="dash-row">
           <div class="dash-card">
             <h3>📊 CGPA Distribution</h3>
             <div class="bar-chart">
@@ -511,11 +578,11 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
               <thead>
                 <tr>
                   <th>Student</th><th>Branch / Semester</th><th>CGPA</th>
-                  <th>Attendance</th><th>Status</th><th>Actions</th>
+                  <th>Attendance</th><th>AI Risk</th><th>Status</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody id="studentsTableBody">
-                <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👨‍🎓</div><div class="empty-text">No students yet — add your first student!</div></div></td></tr>
+                <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👨‍🎓</div><div class="empty-text">No students yet — add your first student!</div></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -537,10 +604,44 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
       </div>
 
       <!-- SETTINGS -->
+      <!-- ══ AI ENGINE VIEW ═══════════════════════════════════ -->
+      <div class="view" id="view-ai">
+        <div class="ai-intro">
+          <div style="font-size:.83rem;font-weight:700;color:var(--em);margin-bottom:.35rem">🤖 AI Engine — Powered by FREA Pattern</div>
+          <div style="font-size:.77rem;color:var(--g5);line-height:1.65">4 intelligent algorithms run entirely in your browser. Every time Firestore fires an <code style="background:var(--g3);padding:1px 5px;border-radius:4px">onSnapshot</code> event, the AI automatically re-analyses all students. No API key. No server. This is the uniqueness of the <strong style="color:var(--g6)">FREA (Firebase Real-time Event-driven Architecture)</strong> pattern.</div>
+        </div>
+        <!-- NLP Natural Language Search -->
+        <div class="nlp-wrap">
+          <span style="font-size:1.1rem">🧠</span>
+          <input type="text" id="nlpInput" placeholder='Ask in plain English: "show high risk students" or "who needs improvement" or "top performers"' oninput="nlpSearch(this.value)">
+          <button onclick="nlpSearch(document.getElementById('nlpInput').value)" style="background:var(--em);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:.8rem;font-weight:600;cursor:pointer;white-space:nowrap">🔍 Search</button>
+        </div>
+        <div class="nlp-chips">
+          <span class="nlp-chip" onclick="nlpQuick('high risk')">⚠️ High risk</span>
+          <span class="nlp-chip" onclick="nlpQuick('detained')">🔴 Detained</span>
+          <span class="nlp-chip" onclick="nlpQuick('top performers')">🏆 Top performers</span>
+          <span class="nlp-chip" onclick="nlpQuick('needs improvement')">📈 Needs work</span>
+          <span class="nlp-chip" onclick="nlpQuick('low cgpa')">📉 Low CGPA</span>
+          <span class="nlp-chip" onclick="nlpQuick('anomaly')">🔔 Anomalies</span>
+          <span class="nlp-chip" onclick="nlpQuick('all')">🔄 Show all</span>
+        </div>
+        <div class="nlp-result" id="nlpResult"></div>
+        <div class="ai-grid" id="aiGrid"></div>
+      </div>
+
       <div class="view" id="view-settings">
         <div class="security-card">
-          <h4>🔒 Data Isolation — How your privacy works</h4>
-          <p>All your student records are stored under your unique user ID in Firestore at path <strong>users/{your-uid}/students</strong>. Other users cannot access, view, or modify your data even if they use the same app. This is enforced by Firestore Security Rules on the server side.</p>
+          <h4>⚡ FREA Pattern — Firebase Real-time Event-driven Architecture (v4.0)</h4>
+          <p>This system is built on the <strong style="color:var(--em)">FREA Pattern</strong> — a unique architectural pattern developed for this project by Prince Kumar. Unlike traditional request-response systems, FREA uses Firestore's <code style="background:var(--g3);padding:1px 5px;border-radius:4px">onSnapshot()</code> listeners to push data changes to the UI instantly. Every write to Firestore automatically triggers the AI Engine re-analysis — no polling, no refresh, no server required. Data is isolated per user at <strong>users/{uid}/students</strong> enforced by Firestore Security Rules.</p>
+        </div>
+        <div class="security-card" style="background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.25);">
+          <h4 style="color:#a5b4fc">🤖 AI Engine — 4 Algorithms</h4>
+          <p style="line-height:1.8">
+            <strong style="color:var(--g6)">1. Risk Predictor</strong> — Weighted scoring: 40% CGPA + 35% Attendance + 25% Weakest Subject → Risk Score 0–100<br>
+            <strong style="color:var(--g6)">2. Anomaly Detection</strong> — Flags deviations from class averages; detects detained students & failing subjects automatically<br>
+            <strong style="color:var(--g6)">3. Study Recommender</strong> — Generates personalised subject-level improvement tips based on individual scores<br>
+            <strong style="color:var(--g6)">4. NLP Search</strong> — Plain-English queries like "show high risk students" parsed via keyword-rule engine
+          </p>
         </div>
         <div class="settings-grid">
           <div class="settings-card">
@@ -884,11 +985,12 @@ function renderAll() {
   renderDashboard();
   renderGrades();
   renderAttendance();
+  renderAI(allStudents);   // ← FREA: AI re-runs on every Firestore event
   document.getElementById('studentCountBadge').textContent = allStudents.length;
 }
 
 // ── NAVIGATION ─────────────────────────────────────────────────────────────────
-const VIEW_TITLES={dashboard:'📊 Dashboard',students:'👨‍🎓 Students',grades:'📝 Grades & CGPA',attendance:'📅 Attendance',settings:'⚙️ Settings'};
+const VIEW_TITLES={dashboard:'📊 Dashboard',students:'👨‍🎓 Students',grades:'📝 Grades & CGPA',attendance:'📅 Attendance',ai:'🤖 AI Engine — FREA Pattern',settings:'⚙️ Settings'};
 function navigate(view) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -964,6 +1066,211 @@ function renderDashboard() {
   }
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// 🤖 AI ENGINE — FREA Pattern v4.0
+// Prince Kumar | Parul University | B.Tech IT (2nd Year)
+//
+// This engine implements 4 AI algorithms:
+// 1. riskScore()      — Weighted multi-parameter dropout risk predictor
+// 2. detectAnomaly()  — Attendance & grade anomaly detection
+// 3. studyRecs()      — Personalised subject recommendation engine
+// 4. nlpSearch()      — Natural Language Processing search
+//
+// All algorithms trigger automatically via Firestore onSnapshot events
+// following the FREA (Firebase Real-time Event-driven Architecture) pattern.
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── 1. RISK PREDICTOR ─────────────────────────────────────────────────────────
+// Weighted formula based on educational research:
+//   40% weight → CGPA performance
+//   35% weight → Attendance
+//   25% weight → Weakest subject score
+// Returns a risk score 0–100 (higher = more at risk)
+function riskScore(s) {
+  const cgpa = Number(s.cgpa) || 0;
+  const att  = Number(s.attendance) || 0;
+  const subj = [s.ds,s.algo,s.dbms,s.os,s.cn,s.se].map(v=>Number(v)||0);
+  const weakest = subj.length ? Math.min(...subj) : 50;
+
+  // Invert so higher = worse
+  const cgpaRisk  = ((10 - cgpa) / 10) * 100;    // weight 40%
+  const attRisk   = Math.max(0, 100 - att);       // weight 35%
+  const weakRisk  = Math.max(0, 100 - weakest);   // weight 25%
+
+  return Math.round(cgpaRisk * 0.40 + attRisk * 0.35 + weakRisk * 0.25);
+}
+function riskLevel(score) {
+  if (score >= 65) return 'high';
+  if (score >= 35) return 'med';
+  return 'low';
+}
+function riskLabel(score) {
+  if (score >= 65) return '🔴 High Risk';
+  if (score >= 35) return '🟡 Medium Risk';
+  return '🟢 Low Risk';
+}
+
+// ── 2. ANOMALY DETECTION ──────────────────────────────────────────────────────
+// Flags students whose metrics deviate from class averages
+function detectAnomalies(s, avgCGPA, avgAtt) {
+  const flags = [];
+  const cgpa = Number(s.cgpa) || 0;
+  const att  = Number(s.attendance) || 0;
+
+  if (att < 60)                        flags.push('🔴 Detained — attendance below 60%');
+  else if (att < 75)                   flags.push('⚠️ Attendance warning — below 75% threshold');
+  else if (att < avgAtt - 15)          flags.push('📉 Attendance significantly below class average');
+
+  if (cgpa < 4)                        flags.push('🔴 CGPA below passing grade (4.0)');
+  else if (cgpa < avgCGPA - 2)         flags.push('📉 CGPA significantly below class average');
+
+  const subj = {DS:s.ds,Algo:s.algo,DBMS:s.dbms,OS:s.os,CN:s.cn,SE:s.se};
+  Object.entries(subj).forEach(([name,val]) => {
+    if (Number(val||0) < 35) flags.push(`🚨 ${name} below passing mark (35)`);
+  });
+  return flags;
+}
+
+// ── 3. STUDY RECOMMENDATION ENGINE ───────────────────────────────────────────
+// Analyses each subject score and generates personalised recommendations
+function studyRecs(s) {
+  const recs = [];
+  const map = {
+    ds:   {name:'Data Structures',   tip:'Practice trees, graphs & dynamic programming daily'},
+    algo: {name:'Algorithms',        tip:'Focus on time-complexity analysis & sorting algorithms'},
+    dbms: {name:'DBMS',              tip:'Revise SQL joins, normalisation (1NF–3NF) & transactions'},
+    os:   {name:'Operating Systems', tip:'Strengthen process scheduling & memory management concepts'},
+    cn:   {name:'Computer Networks', tip:'Revise OSI model, TCP/IP stack & routing protocols'},
+    se:   {name:'Software Engg.',    tip:'Study SDLC models, UML diagrams & agile methodologies'},
+  };
+  Object.entries(map).forEach(([key, info]) => {
+    const score = Number(s[key] || 0);
+    if (score < 50)      recs.push(`🔴 ${info.name} (${score}%) — ${info.tip}`);
+    else if (score < 70) recs.push(`🟡 ${info.name} (${score}%) — Revise weak areas`);
+  });
+  if (!recs.length) recs.push('✅ Excellent across all subjects — maintain consistency');
+  return recs;
+}
+
+// ── 4. NLP SEARCH ────────────────────────────────────────────────────────────
+// Parses plain-English queries and maps them to filter logic
+const NLP_RULES = [
+  { keywords:['high risk','at risk','risk'],      fn: s => riskScore(s) >= 65,              label:'High Risk Students' },
+  { keywords:['medium risk','med risk'],           fn: s => { const r=riskScore(s); return r>=35&&r<65; }, label:'Medium Risk Students' },
+  { keywords:['detained','below 60','fail attend'],fn: s => Number(s.attendance||0) < 60,   label:'Detained Students' },
+  { keywords:['low attend','attendance warning'],  fn: s => Number(s.attendance||0) < 75,   label:'Low Attendance' },
+  { keywords:['top perform','best','outstanding','topper'], fn: s => Number(s.cgpa||0) >= 9, label:'Top Performers' },
+  { keywords:['low cgpa','poor cgpa','weak'],      fn: s => Number(s.cgpa||0) < 5,          label:'Low CGPA Students' },
+  { keywords:['needs improvement','improve','struggling'], fn: s => riskScore(s) >= 35,     label:'Students Needing Improvement' },
+  { keywords:['anomaly','anomalies','flag'],        fn: s => riskScore(s) >= 50,             label:'Flagged Students' },
+  { keywords:['it branch','information tech'],     fn: s => s.branch?.toLowerCase().includes('information'), label:'IT Branch' },
+  { keywords:['cse','computer science'],           fn: s => s.branch?.toLowerCase().includes('computer'),   label:'CSE Branch' },
+  { keywords:['semester 4','sem 4'],               fn: s => s.year?.includes('4'),          label:'Semester 4' },
+  { keywords:['all','reset','show all','everyone'],fn: s => true,                           label:'All Students' },
+];
+
+let nlpFiltered = null; // null = show all
+
+function nlpSearch(query) {
+  const q = (query||'').toLowerCase().trim();
+  document.getElementById('nlpResult').textContent = '';
+  if (!q || q==='all' || q==='reset') { nlpFiltered=null; renderAI(allStudents); return; }
+
+  for (const rule of NLP_RULES) {
+    if (rule.keywords.some(k => q.includes(k))) {
+      nlpFiltered = allStudents.filter(rule.fn);
+      document.getElementById('nlpResult').textContent =
+        `🧠 AI found ${nlpFiltered.length} student${nlpFiltered.length!==1?'s':''} matching "${rule.label}"`;
+      renderAI(nlpFiltered);
+      return;
+    }
+  }
+  // Fallback: name search
+  nlpFiltered = allStudents.filter(s => s.name?.toLowerCase().includes(q) || s.studentId?.toLowerCase().includes(q));
+  document.getElementById('nlpResult').textContent =
+    `🔍 Found ${nlpFiltered.length} student${nlpFiltered.length!==1?'s':''} matching "${query}"`;
+  renderAI(nlpFiltered);
+}
+function nlpQuick(query) {
+  document.getElementById('nlpInput').value = query;
+  nlpSearch(query);
+}
+
+// ── RENDER AI ENGINE VIEW ──────────────────────────────────────────────────────
+function renderAI(students) {
+  const list = students || allStudents;
+  const grid = document.getElementById('aiGrid');
+  if (!grid) return;
+
+  // Compute class averages for anomaly detection
+  const avgCGPA = list.length ? list.reduce((a,s)=>a+Number(s.cgpa||0),0)/list.length : 0;
+  const avgAtt  = list.length ? list.reduce((a,s)=>a+Number(s.attendance||0),0)/list.length : 0;
+
+  if (!list.length) {
+    grid.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--g5);grid-column:1/-1">
+      ${allStudents.length ? '🔍 No students match this query.' : '📭 No students yet. Add students to see AI analysis.'}
+    </div>`;
+    updateAIDashSummary([]);
+    return;
+  }
+
+  grid.innerHTML = list.map(s => {
+    const score = riskScore(s);
+    const level = riskLevel(score);
+    const label = riskLabel(score);
+    const recs  = studyRecs(s);
+    const flags = detectAnomalies(s, avgCGPA, avgAtt);
+
+    const recHTML = recs.slice(0,3).map(r =>
+      `<span class="rec-tag">${r.length>55?r.slice(0,52)+'…':r}</span>`
+    ).join('');
+
+    const anomalyHTML = flags.length
+      ? flags.slice(0,2).map(f=>`<div class="anomaly-flag">⚡ ${f}</div>`).join('')
+      : `<div class="anomaly-ok">✅ No anomalies detected</div>`;
+
+    return `
+    <div class="ai-card">
+      <div class="ai-card-hdr">
+        <div>
+          <div class="ai-card-name">${s.name||'—'}</div>
+          <div class="ai-card-id">${s.studentId||''} · ${s.branch?.split(' ')[0]||''} · CGPA ${s.cgpa||0}</div>
+        </div>
+        <span class="risk-badge risk-${level}">${label}</span>
+      </div>
+
+      <div style="font-size:.72rem;color:var(--g5);margin-bottom:2px">Risk Score: <strong style="color:var(--g6)">${score}/100</strong></div>
+      <div class="risk-meter"><div class="risk-fill ${level}" style="width:${score}%"></div></div>
+
+      <div style="font-size:.72rem;color:var(--g5);margin:.55rem 0 .3rem;font-weight:600">📚 Study Recommendations</div>
+      <div class="rec-tags">${recHTML}</div>
+
+      <div style="font-size:.72rem;color:var(--g5);margin:.6rem 0 .25rem;font-weight:600">🔔 Anomaly Detection</div>
+      ${anomalyHTML}
+    </div>`;
+  }).join('');
+
+  updateAIDashSummary(allStudents); // always base dashboard on full list
+}
+
+function updateAIDashSummary(students) {
+  const row = document.getElementById('aiDashRow');
+  if (!row) return;
+  if (!students.length) { row.style.display='none'; return; }
+  row.style.display = 'grid';
+
+  const avgCGPA = students.reduce((a,s)=>a+Number(s.cgpa||0),0)/students.length;
+  const avgAtt  = students.reduce((a,s)=>a+Number(s.attendance||0),0)/students.length;
+
+  const high = students.filter(s=>riskScore(s)>=65).length;
+  const anom = students.filter(s=>detectAnomalies(s,avgCGPA,avgAtt).length>0).length;
+  const safe = students.filter(s=>riskScore(s)<35).length;
+
+  document.getElementById('aiDashHigh').textContent = high;
+  document.getElementById('aiDashAnom').textContent = anom;
+  document.getElementById('aiDashSafe').textContent = safe;
+}
+
 // ── STUDENTS TABLE ─────────────────────────────────────────────────────────────
 function applyFilter() {
   let list = [...allStudents];
@@ -988,7 +1295,7 @@ function renderTable() {
   const tbody=document.getElementById('studentsTableBody');
   document.getElementById('tableCount').textContent=filteredStudents.length+' student'+(filteredStudents.length!==1?'s':'');
   if (!filteredStudents.length) {
-    tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No students found</div></div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No students found</div></div></td></tr>`;
     return;
   }
   tbody.innerHTML=filteredStudents.map((s,i)=>{
@@ -1000,6 +1307,8 @@ function renderTable() {
     const stClr   = s.status==='active'?'s-active':s.status==='warning'?'s-warning':'s-inactive';
     const stTxt   = s.status==='active'?'Active':s.status==='warning'?'Warning':'Detained';
     const avColor = AV_COLORS[i%AV_COLORS.length];
+    const risk    = riskScore(s);
+    const rlvl    = riskLevel(risk);
     return `<tr>
       <td><div class="student-cell">
         <div class="student-av" style="background:${avColor}">${(s.name||'?').substring(0,2).toUpperCase()}</div>
@@ -1012,6 +1321,10 @@ function renderTable() {
           <div class="att-bar" style="width:80px"><div class="att-fill" style="width:${att}%;background:${attClr}"></div></div>
           <span style="font-size:.75rem;color:var(--g5);font-family:var(--fm)">${att}%</span>
         </div>
+      </td>
+      <td>
+        <span class="risk-badge risk-${rlvl}">${risk}/100</span>
+        <div class="risk-meter" style="width:70px;margin-top:4px"><div class="risk-fill ${rlvl}" style="width:${risk}%"></div></div>
       </td>
       <td><span class="status-dot ${stClr}"></span>${stTxt}</td>
       <td><div class="action-btns">

@@ -34,6 +34,9 @@ git add .
 git commit -m "Added README"
 git push
 
+
+<h3?> "Here are some snapshot of the  project" </h3>
+
 ## 📸 Preview
 ![App Screenshot](preview.png)
 ![App Screenshot](preview2.png)
