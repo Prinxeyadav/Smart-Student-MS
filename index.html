@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartEdu University — SMS v4 | FREA + AI Engine</title>
+<title>SmartEdu University — SMS v5 | Dual Role: Faculty + Student Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
-   SMARTEDU UNIVERSITY — v4.0
+   SMARTEDU UNIVERSITY — v5.0
    PATTERN : FREA (Firebase Real-time Event-driven Architecture)
    AI ENGINE: Risk Predictor · Anomaly Detection · Study Recommender · NLP Search
    AUTH    : Email/Password · Google Sign-In · Forgot Password
+   ROLES   : Faculty Admin (full CRUD) + Student Portal (read-only)
    DATA    : Per-user isolation (users/{uid}/students)
    GRADE   : 10-point CGPA · O/A+/A/B+/B/C/F
    AUTHOR  : Prince Kumar | Parul University | B.Tech IT
@@ -120,6 +121,68 @@ button{cursor:pointer}
 .ai-dash-lbl{font-size:.73rem;color:var(--g5);margin-top:.2rem}
 /* AI intro banner */
 .ai-intro{background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(99,102,241,.1));border:1px solid rgba(16,185,129,.22);border-radius:13px;padding:1rem 1.2rem;margin:1rem 1rem .2rem}
+
+/* ── ROLE SELECTOR on auth screen ───────────────────────── */
+.role-toggle{display:flex;gap:6px;background:var(--g1);border-radius:10px;padding:4px;margin-bottom:1.2rem}
+.role-btn{flex:1;padding:9px 6px;border:none;background:none;color:var(--g5);font-size:.82rem;font-weight:600;border-radius:7px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.role-btn.active{color:#fff}
+.role-btn.faculty-role.active{background:linear-gradient(135deg,var(--em),var(--em2))}
+.role-btn.student-role.active{background:linear-gradient(135deg,#6366f1,#4f46e5)}
+
+/* ── STUDENT PORTAL FULL SCREEN ─────────────────────────── */
+#studentPortal{display:none;min-height:100vh;background:var(--g1);flex-direction:column}
+#studentPortal.visible{display:flex}
+.sp-topbar{background:var(--g2);border-bottom:1px solid var(--g3);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.sp-logo{display:flex;align-items:center;gap:10px;font-size:1rem;font-weight:700;color:var(--g7)}
+.sp-logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.sp-user{display:flex;align-items:center;gap:10px}
+.sp-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff}
+.sp-name{font-size:.85rem;font-weight:600;color:var(--g6)}
+.sp-role-tag{font-size:.7rem;color:#a5b4fc;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.25);border-radius:100px;padding:2px 8px}
+.sp-body{flex:1;padding:1.5rem;max-width:900px;margin:0 auto;width:100%}
+/* student hero card */
+.sp-hero{background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(16,185,129,.15));border:1px solid rgba(99,102,241,.3);border-radius:18px;padding:1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem}
+.sp-hero-av{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:#fff;flex-shrink:0}
+.sp-hero-info{flex:1}
+.sp-hero-name{font-size:1.3rem;font-weight:700;color:var(--g7)}
+.sp-hero-meta{font-size:.82rem;color:var(--g5);margin-top:.3rem;line-height:1.7}
+.sp-cgpa-big{text-align:right}
+.sp-cgpa-num{font-size:2.4rem;font-weight:800;font-family:var(--fm);background:linear-gradient(135deg,#6ee7b7,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sp-cgpa-lbl{font-size:.72rem;color:var(--g5)}
+/* stat row */
+.sp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.5rem}
+.sp-stat{background:var(--g2);border:1px solid var(--g3);border-radius:12px;padding:1rem;text-align:center}
+.sp-stat-val{font-size:1.4rem;font-weight:700;font-family:var(--fm)}
+.sp-stat-lbl{font-size:.72rem;color:var(--g5);margin-top:.2rem}
+/* subject cards */
+.sp-section-title{font-size:.78rem;font-weight:700;color:var(--g4);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:.75rem}
+.sp-subjects{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem}
+.sp-subj-card{background:var(--g2);border:1px solid var(--g3);border-radius:12px;padding:1rem}
+.sp-subj-name{font-size:.78rem;font-weight:600;color:var(--g5);margin-bottom:.5rem}
+.sp-subj-score{font-size:1.3rem;font-weight:700;font-family:var(--fm);color:var(--g7)}
+.sp-subj-grade{font-size:.72rem;margin-top:2px}
+.sp-subj-bar{height:4px;background:var(--g3);border-radius:100px;margin-top:.5rem;overflow:hidden}
+.sp-subj-fill{height:100%;border-radius:100px}
+/* attendance ring */
+.sp-two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.sp-card{background:var(--g2);border:1px solid var(--g3);border-radius:14px;padding:1.25rem}
+.sp-att-ring{display:flex;align-items:center;gap:1.2rem}
+.sp-ring-svg{width:80px;height:80px;flex-shrink:0}
+.sp-ring-info{flex:1}
+/* AI recommendations in student portal */
+.sp-rec-item{background:var(--g1);border-left:3px solid var(--em);border-radius:0 8px 8px 0;padding:.6rem .9rem;margin-bottom:.5rem;font-size:.8rem;color:var(--g5);line-height:1.5}
+.sp-risk-bar{height:8px;background:var(--g3);border-radius:100px;margin:.5rem 0;overflow:hidden}
+.sp-risk-fill{height:100%;border-radius:100px}
+/* not found state */
+.sp-not-found{text-align:center;padding:3rem 1rem;color:var(--g5)}
+.sp-not-found .icon{font-size:3rem;margin-bottom:1rem}
+@media(max-width:700px){
+  .sp-stats{grid-template-columns:repeat(2,1fr)}
+  .sp-subjects{grid-template-columns:repeat(2,1fr)}
+  .sp-two-col{grid-template-columns:1fr}
+  .sp-hero{flex-direction:column;text-align:center}
+  .sp-cgpa-big{text-align:center}
+}
 
 /* APP */
 #app{display:none;min-height:100vh}
@@ -374,49 +437,74 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
     <div class="isolation-badge">🔒 Your data is private — only you can see your students</div>
     <div class="auth-title">Welcome 👋</div>
     <div class="auth-sub">Each account has its own private student database</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchTab('login')">🔐 Sign In</button>
-      <button class="auth-tab" onclick="switchTab('signup')">✨ Sign Up</button>
+
+    <!-- ROLE SELECTOR -->
+    <div class="role-toggle" id="roleToggle">
+      <button class="role-btn faculty-role active" onclick="switchRole('faculty')">🎓 Faculty / Admin</button>
+      <button class="role-btn student-role" onclick="switchRole('student')">👨‍🎓 Student Login</button>
     </div>
 
-    <!-- LOGIN FORM -->
-    <div id="loginForm">
-      <div class="fi"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@university.edu"></div>
+    <!-- FACULTY AUTH TABS -->
+    <div id="facultyAuth">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">🔐 Sign In</button>
+        <button class="auth-tab" onclick="switchTab('signup')">✨ Sign Up</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <div class="fi"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@university.edu"></div>
+        <div class="fi">
+          <label>Password</label>
+          <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="forgot-link"><a onclick="switchTab('forgot')">Forgot password?</a></div>
+        <button class="auth-btn" onclick="doLogin()">🚀 Sign In</button>
+        <div class="auth-divider">or</div>
+        <button class="google-btn" onclick="doGoogle()">
+          <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-divider">or</div>
+        <button class="demo-btn" onclick="doDemo()">🎭 Try Demo (no signup needed)</button>
+      </div>
+
+      <!-- SIGN UP FORM -->
+      <div id="signupForm" style="display:none">
+        <div class="fi"><label>Full Name</label><input type="text" id="signupName" placeholder="Your Name"></div>
+        <div class="fi"><label>Email</label><input type="email" id="signupEmail" placeholder="admin@university.edu"></div>
+        <div class="fi"><label>Password</label><input type="password" id="signupPass" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doSignup()"></div>
+        <button class="auth-btn" onclick="doSignup()">✨ Create Account</button>
+        <div class="auth-divider">or</div>
+        <button class="google-btn" onclick="doGoogle()">
+          <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Sign Up with Google
+        </button>
+      </div>
+
+      <!-- FORGOT PASSWORD FORM -->
+      <div id="forgotForm">
+        <div class="back-link" onclick="switchTab('login')">← Back to Sign In</div>
+        <div class="auth-title" style="font-size:1.1rem;margin-bottom:.3rem">Reset Password 🔑</div>
+        <div class="auth-sub" style="margin-bottom:1rem">Enter your email and we'll send you a reset link.</div>
+        <div class="fi"><label>Email</label><input type="email" id="forgotEmail" placeholder="admin@university.edu" onkeydown="if(event.key==='Enter')doForgotPassword()"></div>
+        <button class="auth-btn" onclick="doForgotPassword()">📧 Send Reset Email</button>
+      </div>
+    </div>
+
+    <!-- STUDENT LOGIN FORM -->
+    <div id="studentAuth" style="display:none">
+      <div style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:.75rem 1rem;margin-bottom:1.2rem;font-size:.78rem;color:#a5b4fc;line-height:1.6">
+        👨‍🎓 Students log in using their <strong>Enrollment Number</strong> (e.g. 22IT001) and the password set by their faculty.
+      </div>
+      <div class="fi"><label>Enrollment Number</label><input type="text" id="stuEnroll" placeholder="e.g. 22IT001" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="fi">
         <label>Password</label>
-        <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        <input type="password" id="stuPass" placeholder="Password given by faculty" onkeydown="if(event.key==='Enter')doStudentLogin()">
       </div>
-      <div class="forgot-link"><a onclick="switchTab('forgot')">Forgot password?</a></div>
-      <button class="auth-btn" onclick="doLogin()">🚀 Sign In</button>
+      <button class="auth-btn" style="background:linear-gradient(135deg,#6366f1,#4f46e5);box-shadow:0 4px 15px rgba(99,102,241,.3)" onclick="doStudentLogin()">🎓 Access My Portal</button>
       <div class="auth-divider">or</div>
-      <button class="google-btn" onclick="doGoogle()">
-        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Continue with Google
-      </button>
-      <div class="auth-divider">or</div>
-      <button class="demo-btn" onclick="doDemo()">🎭 Try Demo (no signup needed)</button>
-    </div>
-
-    <!-- SIGN UP FORM -->
-    <div id="signupForm" style="display:none">
-      <div class="fi"><label>Full Name</label><input type="text" id="signupName" placeholder="Your Name"></div>
-      <div class="fi"><label>Email</label><input type="email" id="signupEmail" placeholder="admin@university.edu"></div>
-      <div class="fi"><label>Password</label><input type="password" id="signupPass" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doSignup()"></div>
-      <button class="auth-btn" onclick="doSignup()">✨ Create Account</button>
-      <div class="auth-divider">or</div>
-      <button class="google-btn" onclick="doGoogle()">
-        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Sign Up with Google
-      </button>
-    </div>
-
-    <!-- FORGOT PASSWORD FORM -->
-    <div id="forgotForm">
-      <div class="back-link" onclick="switchTab('login')">← Back to Sign In</div>
-      <div class="auth-title" style="font-size:1.1rem;margin-bottom:.3rem">Reset Password 🔑</div>
-      <div class="auth-sub" style="margin-bottom:1rem">Enter your email and we'll send you a reset link.</div>
-      <div class="fi"><label>Email</label><input type="email" id="forgotEmail" placeholder="admin@university.edu" onkeydown="if(event.key==='Enter')doForgotPassword()"></div>
-      <button class="auth-btn" onclick="doForgotPassword()">📧 Send Reset Email</button>
+      <button class="demo-btn" onclick="doDemoStudent()">🎭 Demo Student View</button>
     </div>
 
     <div class="auth-err" id="authErr"></div>
@@ -445,7 +533,7 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
       <button class="nav-item" onclick="navigate('ai')" data-view="ai"><span class="nav-icon">🤖</span> AI Engine <span class="nav-badge" style="background:#6366f1">NEW</span></button>
       <div class="nav-section-label" style="margin-top:.5rem">System</div>
       <button class="nav-item" onclick="navigate('settings')" data-view="settings"><span class="nav-icon">⚙️</span> Settings</button>
-      <div class="frea-badge">⚡ FREA Pattern v4.0</div>
+      <div class="frea-badge">⚡ FREA Pattern v5.0</div>
     </nav>
     <div class="sidebar-footer">
       <div class="data-scope">🔒 <span id="scopeLabel">Private data scope</span></div>
@@ -643,6 +731,34 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
             <strong style="color:var(--g6)">4. NLP Search</strong> — Plain-English queries like "show high risk students" parsed via keyword-rule engine
           </p>
         </div>
+        <div class="security-card" style="background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.25);">
+          <h4 style="color:#a5b4fc">👨‍🎓 Student Portal — How it works</h4>
+          <p style="line-height:1.8">
+            <strong style="color:var(--g6)">Login:</strong> Student enters Enrollment No. + password (set by faculty in the Add Student form)<br>
+            <strong style="color:var(--g6)">Default password:</strong> If left blank, defaults to enrollment number in lowercase (e.g. <code style="background:var(--g3);padding:1px 5px;border-radius:4px">22it001</code>)<br>
+            <strong style="color:var(--g6)">What they see:</strong> Their own CGPA, SGPA, attendance ring, subject progress bars, semester summary, AI risk score &amp; study recommendations<br>
+            <strong style="color:var(--g6)">What they cannot do:</strong> Edit any data — fully read-only<br>
+            <strong style="color:var(--g6)">Real-time:</strong> If faculty updates a grade, the student sees it instantly via FREA onSnapshot
+          </p>
+        </div>
+        <div class="security-card" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2);">
+          <h4 style="color:#fca5a5">🔥 Required Firestore Security Rules</h4>
+          <p style="font-size:.76rem;color:var(--g5);line-height:1.7;margin-bottom:.6rem">Paste these rules in Firebase Console → Firestore → Rules → Publish:</p>
+          <pre style="background:var(--g1);border:1px solid var(--g3);border-radius:8px;padding:.75rem;font-size:.72rem;color:#6ee7b7;overflow-x:auto;line-height:1.7">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Faculty: only access their own students
+    match /users/{userId}/students/{studentId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+    // Student portal: collectionGroup read for enrollment lookup
+    match /{path=**}/students/{studentId} {
+      allow read: if true; // password verified in app
+    }
+  }
+}</pre>
+        </div>
         <div class="settings-grid">
           <div class="settings-card">
             <h3>🎓 University Grade System (10-point)</h3>
@@ -685,6 +801,33 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════
+     STUDENT PORTAL — Read-only personal dashboard
+     Shows: CGPA, Attendance, Subjects, AI Recommendations
+═══════════════════════════════════════════════════════════ -->
+<div id="studentPortal">
+  <!-- Top bar -->
+  <div class="sp-topbar">
+    <div class="sp-logo">
+      <div class="sp-logo-icon">🎓</div>
+      <span>Smart<span style="color:#a5b4fc">Edu</span> <span style="font-size:.7rem;color:var(--g5);font-weight:400">Student Portal</span></span>
+    </div>
+    <div class="sp-user">
+      <div>
+        <div class="sp-name" id="spName">—</div>
+        <div class="sp-role-tag">Student · Read Only</div>
+      </div>
+      <div class="sp-av" id="spAv">ST</div>
+      <button onclick="doSignout()" style="background:var(--g3);border:none;color:var(--g5);border-radius:8px;padding:7px 13px;font-size:.8rem;font-weight:600;cursor:pointer;margin-left:.5rem">🚪 Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="sp-body" id="spBody">
+    <!-- populated by renderStudentPortal() -->
+  </div>
+</div>
+
 <!-- ADD/EDIT MODAL — University Level -->
 <div class="modal-overlay" id="studentModal">
   <div class="modal">
@@ -722,6 +865,8 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
         </div>
         <div class="form-group"><label>Email</label><input type="email" id="mEmail" placeholder="student@university.edu"></div>
         <div class="form-group"><label>Phone</label><input type="text" id="mPhone" placeholder="+91 9XXXXXXXXX"></div>
+        <div class="form-group"><label>Student Portal Password</label><input type="text" id="mStuPass" placeholder="Password for student login (min 4 chars)"></div>
+        <div style="font-size:.75rem;color:var(--g5);margin-top:-.4rem;margin-bottom:.5rem">🔑 Student uses Enrollment No. + this password to access their portal</div>
       </div>
 
       <div class="section-divider">📊 Academic Performance (marks out of 100)</div>
@@ -755,16 +900,18 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
 // FIREBASE CONFIG — PASTE YOURS HERE
 // ══════════════════════════════════════════════════════════════════════════════
 const firebaseConfig = {
-  apiKey: "AIzaSyD3Yi_B9ZU3uLDlACe8fZh30lpVX30_ELo",
-  authDomain: "smart-student-ms.firebaseapp.com",
-  projectId: "smart-student-ms",
-  storageBucket: "smart-student-ms.firebasestorage.app",
-  messagingSenderId: "62321500469",
-  appId: "1:62321500469:web:1331146f541f1504ebec7c"
+  apiKey:            "PASTE_YOUR_API_KEY",
+  authDomain:        "PASTE_YOUR_AUTH_DOMAIN",
+  projectId:         "PASTE_YOUR_PROJECT_ID",
+  storageBucket:     "PASTE_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+  appId:             "PASTE_YOUR_APP_ID"
 };
 // ══════════════════════════════════════════════════════════════════════════════
 
 let db, auth, currentUID = null, isDemo = false;
+let currentRole = 'faculty'; // 'faculty' | 'student'
+let currentStudentData = null; // holds the logged-in student's record
 const IS_CONFIGURED = !firebaseConfig.apiKey.startsWith('PASTE');
 
 // ── UNIVERSITY CGPA SYSTEM (10-point scale) ───────────────────────────────────
@@ -817,14 +964,14 @@ function studentsRef() {
 
 // ── DEMO DATA ─────────────────────────────────────────────────────────────────
 const DEMO = [
-  { id:'s1', name:'Arjun Sharma',   studentId:'22IT001', branch:'Information Technology',    year:'Semester 4', email:'arjun@parul.edu',  phone:'+91 9876543210', ds:88, algo:85, dbms:91, os:82, cn:88, se:84, attendance:92, status:'active',   createdAt:Date.now()-8e6 },
-  { id:'s2', name:'Priya Patel',    studentId:'22IT002', branch:'Information Technology',    year:'Semester 4', email:'priya@parul.edu',  phone:'+91 9876543211', ds:72, algo:68, dbms:75, os:70, cn:73, se:71, attendance:88, status:'active',   createdAt:Date.now()-7e6 },
-  { id:'s3', name:'Rahul Verma',    studentId:'22EC003', branch:'Electronics & Communication',year:'Semester 4', email:'rahul@parul.edu',  phone:'+91 9876543212', ds:55, algo:50, dbms:60, os:52, cn:58, se:54, attendance:68, status:'warning',  createdAt:Date.now()-6e6 },
-  { id:'s4', name:'Sneha Gupta',    studentId:'22DS004', branch:'Data Science & AI',         year:'Semester 4', email:'sneha@parul.edu',  phone:'+91 9876543213', ds:96, algo:94, dbms:92, os:90, cn:95, se:93, attendance:97, status:'active',   createdAt:Date.now()-5e6 },
-  { id:'s5', name:'Vikram Singh',   studentId:'22ME005', branch:'Mechanical Engineering',    year:'Semester 6', email:'vikram@parul.edu', phone:'+91 9876543214', ds:38, algo:35, dbms:40, os:36, cn:39, se:37, attendance:58, status:'inactive', createdAt:Date.now()-4e6 },
-  { id:'s6', name:'Kavya Reddy',    studentId:'22CS006', branch:'Computer Science Engineering',year:'Semester 4',email:'kavya@parul.edu',  phone:'+91 9876543215', ds:82, algo:80, dbms:84, os:78, cn:83, se:81, attendance:90, status:'active',   createdAt:Date.now()-3e6 },
-  { id:'s7', name:'Ankit Joshi',    studentId:'22CE007', branch:'Civil Engineering',         year:'Semester 4', email:'ankit@parul.edu',  phone:'+91 9876543216', ds:65, algo:62, dbms:68, os:60, cn:66, se:63, attendance:80, status:'active',   createdAt:Date.now()-2e6 },
-  { id:'s8', name:'Meera Nair',     studentId:'22IT008', branch:'Information Technology',    year:'Semester 2', email:'meera@parul.edu',  phone:'+91 9876543217', ds:91, algo:89, dbms:93, os:87, cn:92, se:90, attendance:95, status:'active',   createdAt:Date.now()-1e6 },
+  { id:'s1', name:'Arjun Sharma',   studentId:'22IT001', branch:'Information Technology',       year:'Semester 4', email:'arjun@parul.edu',  phone:'+91 9876543210', ds:88, algo:85, dbms:91, os:82, cn:88, se:84, attendance:92, status:'active',   stuPass:'arjun123',  createdAt:Date.now()-8e6 },
+  { id:'s2', name:'Priya Patel',    studentId:'22IT002', branch:'Information Technology',       year:'Semester 4', email:'priya@parul.edu',  phone:'+91 9876543211', ds:72, algo:68, dbms:75, os:70, cn:73, se:71, attendance:88, status:'active',   stuPass:'priya123',  createdAt:Date.now()-7e6 },
+  { id:'s3', name:'Rahul Verma',    studentId:'22EC003', branch:'Electronics & Communication',  year:'Semester 4', email:'rahul@parul.edu',  phone:'+91 9876543212', ds:55, algo:50, dbms:60, os:52, cn:58, se:54, attendance:68, status:'warning',  stuPass:'rahul123',  createdAt:Date.now()-6e6 },
+  { id:'s4', name:'Sneha Gupta',    studentId:'22DS004', branch:'Data Science & AI',            year:'Semester 4', email:'sneha@parul.edu',  phone:'+91 9876543213', ds:96, algo:94, dbms:92, os:90, cn:95, se:93, attendance:97, status:'active',   stuPass:'sneha123',  createdAt:Date.now()-5e6 },
+  { id:'s5', name:'Vikram Singh',   studentId:'22ME005', branch:'Mechanical Engineering',       year:'Semester 6', email:'vikram@parul.edu', phone:'+91 9876543214', ds:38, algo:35, dbms:40, os:36, cn:39, se:37, attendance:58, status:'inactive', stuPass:'vikram123', createdAt:Date.now()-4e6 },
+  { id:'s6', name:'Kavya Reddy',    studentId:'22CS006', branch:'Computer Science Engineering', year:'Semester 4', email:'kavya@parul.edu',  phone:'+91 9876543215', ds:82, algo:80, dbms:84, os:78, cn:83, se:81, attendance:90, status:'active',   stuPass:'kavya123',  createdAt:Date.now()-3e6 },
+  { id:'s7', name:'Ankit Joshi',    studentId:'22CE007', branch:'Civil Engineering',            year:'Semester 4', email:'ankit@parul.edu',  phone:'+91 9876543216', ds:65, algo:62, dbms:68, os:60, cn:66, se:63, attendance:80, status:'active',   stuPass:'ankit123',  createdAt:Date.now()-2e6 },
+  { id:'s8', name:'Meera Nair',     studentId:'22IT008', branch:'Information Technology',       year:'Semester 2', email:'meera@parul.edu',  phone:'+91 9876543217', ds:91, algo:89, dbms:93, os:87, cn:92, se:90, attendance:95, status:'active',   stuPass:'meera123',  createdAt:Date.now()-1e6 },
 ];
 
 // ── STATE ──────────────────────────────────────────────────────────────────────
@@ -847,6 +994,65 @@ function initFirebase() {
   }
 }
 function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
+
+// ── ROLE SWITCHING ────────────────────────────────────────────────────────────
+function switchRole(role) {
+  currentRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.${role}-role`).classList.add('active');
+  document.getElementById('facultyAuth').style.display = role==='faculty' ? 'block' : 'none';
+  document.getElementById('studentAuth').style.display = role==='student' ? 'block' : 'none';
+  document.getElementById('authErr').textContent = '';
+  document.getElementById('authSuccess').textContent = '';
+}
+
+// ── STUDENT LOGIN (Enrollment No. + Password stored in Firestore) ─────────────
+// How it works:
+//  Faculty saves each student with a portal password field (stuPass).
+//  Student enters Enrollment No. → we search ALL faculty accounts' student collections
+//  via a collectionGroup query → find the matching record → verify password locally.
+//  This keeps the system serverless — no separate Firebase Auth account needed per student.
+async function doStudentLogin() {
+  if (!IS_CONFIGURED) { doDemoStudent(); return; }
+  const enroll = document.getElementById('stuEnroll').value.trim().toUpperCase();
+  const pass   = document.getElementById('stuPass').value;
+  if (!enroll || !pass) { showErr('Please enter your enrollment number and password'); return; }
+  setAuthBtns(true);
+  showErr('');
+  document.getElementById('authSuccess').textContent = '🔍 Looking up your record...';
+  try {
+    // Query across all faculty collections using collectionGroup
+    const snap = await db.collectionGroup('students')
+                         .where('studentId', '==', enroll)
+                         .limit(1)
+                         .get();
+    if (snap.empty) { showErr('❌ Enrollment number not found. Contact your faculty.'); setAuthBtns(false); document.getElementById('authSuccess').textContent=''; return; }
+    const doc  = snap.docs[0];
+    const data = { id: doc.id, ...doc.data() };
+    data.cgpa  = calcCGPA(data);
+    // Verify password
+    if (!data.stuPass || data.stuPass !== pass) {
+      showErr('❌ Incorrect password. Contact your faculty to reset it.');
+      setAuthBtns(false); document.getElementById('authSuccess').textContent=''; return;
+    }
+    currentStudentData = data;
+    document.getElementById('authSuccess').textContent = '';
+    showStudentPortal(data);
+  } catch(e) {
+    showErr('❌ Error: '+e.message);
+  } finally {
+    setAuthBtns(false);
+  }
+}
+
+function doDemoStudent() {
+  // Use first DEMO student as the demo student portal view
+  const demo = { ...DEMO[0] };
+  demo.cgpa = calcCGPA(demo);
+  demo.stuPass = 'demo';
+  currentStudentData = demo;
+  showStudentPortal(demo);
+}
 
 // ── AUTH ───────────────────────────────────────────────────────────────────────
 function switchTab(tab) {
@@ -939,6 +1145,15 @@ function doDemo() {
   showApp({displayName:'Demo Faculty',email:'demo@smartedu.app'});
 }
 async function doSignout() {
+  if (currentRole === 'student' || currentStudentData) {
+    // Student logout — just clear state
+    currentStudentData = null;
+    document.getElementById('studentPortal').classList.remove('visible');
+    document.getElementById('studentPortal').style.display = 'none';
+    switchRole('student');
+    showAuth();
+    return;
+  }
   if (IS_CONFIGURED && !isDemo) await auth.signOut();
   isDemo=false; allStudents=[]; currentUID=null;
   document.getElementById('app').classList.remove('visible');
@@ -1271,6 +1486,170 @@ function updateAIDashSummary(students) {
   document.getElementById('aiDashSafe').textContent = safe;
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// 🎓 STUDENT PORTAL — showStudentPortal + renderStudentPortal
+// ══════════════════════════════════════════════════════════════════════════════
+function showStudentPortal(s) {
+  // Hide auth, hide faculty app, show student portal
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('app').style.display = 'none';
+  const sp = document.getElementById('studentPortal');
+  sp.style.display = 'flex';
+  setTimeout(() => sp.classList.add('visible'), 10);
+  document.getElementById('spName').textContent  = s.name || '—';
+  document.getElementById('spAv').textContent    = (s.name||'ST').substring(0,2).toUpperCase();
+  renderStudentPortal(s);
+}
+
+function renderStudentPortal(s) {
+  const cgpa   = Number(s.cgpa) || 0;
+  const grade  = cgpaToGrade(cgpa);
+  const att    = Number(s.attendance) || 0;
+  const sgpa   = calcSGPA(s);
+  const risk   = riskScore(s);
+  const rlvl   = riskLevel(risk);
+  const recs   = studyRecs(s);
+
+  // Subject data
+  const subjects = [
+    { name:'Data Structures', key:'ds',   score:Number(s.ds||0)   },
+    { name:'Algorithms',      key:'algo', score:Number(s.algo||0) },
+    { name:'DBMS',            key:'dbms', score:Number(s.dbms||0) },
+    { name:'Operating Sys.',  key:'os',   score:Number(s.os||0)   },
+    { name:'Comp. Networks',  key:'cn',   score:Number(s.cn||0)   },
+    { name:'Software Engg.',  key:'se',   score:Number(s.se||0)   },
+  ];
+
+  // Attendance ring colour
+  const attColor = att>=75?'#10b981':att>=60?'#f59e0b':'#ef4444';
+  const attStatus = att>=75?'✅ Active':att>=60?'⚠️ Warning':'🔴 Detained';
+  const attMsg    = att>=75?'You meet the attendance requirement.':att>=60?`You need ${Math.ceil((75*120-att*100)/25)}% more attendance to reach 75%.`:'You are detained. You cannot sit for exams.';
+
+  // Semester performance bar
+  const subjScores = subjects.map(s=>s.score);
+  const avgScore   = subjScores.reduce((a,b)=>a+b,0)/subjScores.length;
+
+  document.getElementById('spBody').innerHTML = `
+    <!-- HERO CARD -->
+    <div class="sp-hero">
+      <div class="sp-hero-av">${(s.name||'ST').substring(0,2).toUpperCase()}</div>
+      <div class="sp-hero-info">
+        <div class="sp-hero-name">${s.name||'—'}</div>
+        <div class="sp-hero-meta">
+          📋 ${s.studentId||'—'} &nbsp;·&nbsp; 🏫 ${s.branch||'—'}<br>
+          📅 ${s.year||'—'} &nbsp;·&nbsp; 📧 ${s.email||'—'}
+        </div>
+      </div>
+      <div class="sp-cgpa-big">
+        <div class="sp-cgpa-num">${cgpa.toFixed(1)}</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--g6)">${grade}</div>
+        <div class="sp-cgpa-lbl">Current CGPA</div>
+      </div>
+    </div>
+
+    <!-- STAT ROW -->
+    <div class="sp-stats">
+      <div class="sp-stat">
+        <div class="sp-stat-val" style="color:var(--em)">${cgpa.toFixed(1)}</div>
+        <div class="sp-stat-lbl">📊 CGPA</div>
+      </div>
+      <div class="sp-stat">
+        <div class="sp-stat-val" style="color:#a5b4fc">${sgpa}</div>
+        <div class="sp-stat-lbl">📈 SGPA</div>
+      </div>
+      <div class="sp-stat">
+        <div class="sp-stat-val" style="color:${attColor}">${att}%</div>
+        <div class="sp-stat-lbl">📅 Attendance</div>
+      </div>
+      <div class="sp-stat">
+        <div class="sp-stat-val" style="color:${risk>=65?'#fca5a5':risk>=35?'#fcd34d':'#6ee7b7'}">${risk}</div>
+        <div class="sp-stat-lbl">🤖 Risk Score</div>
+      </div>
+    </div>
+
+    <!-- SUBJECT PROGRESS -->
+    <div class="sp-section-title">📚 Subject-wise Performance</div>
+    <div class="sp-subjects">
+      ${subjects.map(sub => {
+        const pct   = sub.score;
+        const color = pct>=75?'#10b981':pct>=50?'#6366f1':pct>=35?'#f59e0b':'#ef4444';
+        const glbl  = pct>=90?'O':pct>=80?'A+':pct>=70?'A':pct>=60?'B+':pct>=50?'B':pct>=40?'C':pct>=35?'P':'F';
+        return `<div class="sp-subj-card">
+          <div class="sp-subj-name">${sub.name}</div>
+          <div class="sp-subj-score" style="color:${color}">${pct}<span style="font-size:.8rem;color:var(--g5)">/100</span></div>
+          <div class="sp-subj-grade" style="color:${color}">Grade ${glbl}</div>
+          <div class="sp-subj-bar"><div class="sp-subj-fill" style="width:${pct}%;background:${color}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- ATTENDANCE + SEMESTER SUMMARY -->
+    <div class="sp-two-col">
+      <div class="sp-card">
+        <div class="sp-section-title" style="margin-bottom:.9rem">📅 Attendance Status</div>
+        <div class="sp-att-ring">
+          <svg class="sp-ring-svg" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="30" fill="none" stroke="var(--g3)" stroke-width="8"/>
+            <circle cx="40" cy="40" r="30" fill="none" stroke="${attColor}" stroke-width="8"
+              stroke-dasharray="${2*Math.PI*30}" stroke-dashoffset="${2*Math.PI*30*(1-att/100)}"
+              stroke-linecap="round" transform="rotate(-90 40 40)"/>
+            <text x="40" y="44" text-anchor="middle" font-size="13" font-weight="700" fill="var(--g7)">${att}%</text>
+          </svg>
+          <div class="sp-ring-info">
+            <div style="font-size:1rem;font-weight:700;color:${attColor};margin-bottom:.3rem">${attStatus}</div>
+            <div style="font-size:.78rem;color:var(--g5);line-height:1.5">${attMsg}</div>
+            <div style="font-size:.75rem;color:var(--g4);margin-top:.5rem">Minimum required: 75%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-section-title" style="margin-bottom:.9rem">📊 Semester Summary</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:.6rem">
+          <span style="font-size:.8rem;color:var(--g5)">Average Score</span>
+          <span style="font-size:.85rem;font-weight:700;color:var(--g6)">${avgScore.toFixed(1)}%</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:.6rem">
+          <span style="font-size:.8rem;color:var(--g5)">Grade</span>
+          <span style="font-size:.85rem;font-weight:700;color:var(--em)">${grade}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:.6rem">
+          <span style="font-size:.8rem;color:var(--g5)">SGPA</span>
+          <span style="font-size:.85rem;font-weight:700;color:#a5b4fc">${sgpa}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:.6rem">
+          <span style="font-size:.8rem;color:var(--g5)">Best Subject</span>
+          <span style="font-size:.85rem;font-weight:700;color:var(--g6)">${subjects.reduce((a,b)=>b.score>a.score?b:a).name.split(' ')[0]}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:.8rem;color:var(--g5)">Needs Attention</span>
+          <span style="font-size:.85rem;font-weight:700;color:#fca5a5">${subjects.reduce((a,b)=>b.score<a.score?b:a).name.split(' ')[0]}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI RECOMMENDATIONS -->
+    <div class="sp-card" style="margin-bottom:1.5rem">
+      <div class="sp-section-title" style="margin-bottom:.75rem">🤖 AI Study Recommendations</div>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem">
+        <div>
+          <div style="font-size:.78rem;color:var(--g5);margin-bottom:3px">Your Risk Score</div>
+          <div style="font-size:1.1rem;font-weight:700;color:${risk>=65?'#fca5a5':risk>=35?'#fcd34d':'#6ee7b7'}">${risk}/100 — ${riskLabel(risk)}</div>
+        </div>
+        <div style="flex:1">
+          <div class="sp-risk-bar"><div class="sp-risk-fill risk-fill ${rlvl}" style="width:${risk}%"></div></div>
+        </div>
+      </div>
+      ${recs.map(r => `<div class="sp-rec-item">${r}</div>`).join('')}
+    </div>
+
+    <!-- FOOTER NOTE -->
+    <div style="text-align:center;font-size:.75rem;color:var(--g4);padding-bottom:2rem">
+      ⚡ Powered by FREA Pattern — data updates in real-time via Firebase onSnapshot · SmartEdu University v5
+    </div>
+  `;
+}
+
 // ── STUDENTS TABLE ─────────────────────────────────────────────────────────────
 function applyFilter() {
   let list = [...allStudents];
@@ -1399,7 +1778,7 @@ function renderAttendance() {
 // ── MODAL ──────────────────────────────────────────────────────────────────────
 function openAddModal() {
   document.getElementById('modalTitle').textContent='➕ Add New Student';
-  ['editId','mName','mId','mEmail','mPhone','mDS','mAlgo','mDBMS','mOS','mCN','mSE','mAtt','mCGPA'].forEach(id=>{
+  ['editId','mName','mId','mEmail','mPhone','mStuPass','mDS','mAlgo','mDBMS','mOS','mCN','mSE','mAtt','mCGPA'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   ['mBranch','mYear'].forEach(id=>document.getElementById(id).value='');
@@ -1417,6 +1796,7 @@ function editStudent(id) {
   document.getElementById('mYear').value    = s.year||'';
   document.getElementById('mEmail').value   = s.email||'';
   document.getElementById('mPhone').value   = s.phone||'';
+  document.getElementById('mStuPass').value = s.stuPass||'';
   document.getElementById('mDS').value      = s.ds||'';
   document.getElementById('mAlgo').value    = s.algo||'';
   document.getElementById('mDBMS').value    = s.dbms||'';
@@ -1459,6 +1839,7 @@ async function saveStudent() {
     name, studentId:studId, branch, year,
     email: document.getElementById('mEmail').value.trim(),
     phone: document.getElementById('mPhone').value.trim(),
+    stuPass: document.getElementById('mStuPass').value.trim() || studId.toLowerCase(),
     ...subjectData,
     cgpa: computedCGPA,
     attendance: attVal, status,
