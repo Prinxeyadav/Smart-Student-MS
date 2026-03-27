@@ -747,17 +747,23 @@ tbody td{padding:13px 16px;font-size:.88rem;color:var(--g6)}
           <pre style="background:var(--g1);border:1px solid var(--g3);border-radius:8px;padding:.75rem;font-size:.72rem;color:#6ee7b7;overflow-x:auto;line-height:1.7">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Faculty: only access their own students
+
+    // Faculty: only access their own private student records
     match /users/{userId}/students/{studentId} {
       allow read, write: if request.auth != null
                          && request.auth.uid == userId;
     }
-    // Student portal: collectionGroup read for enrollment lookup
-    match /{path=**}/students/{studentId} {
-      allow read: if true; // password verified in app
+
+    // Student login index: publicly readable (no login needed)
+    // Only stores: name, stuPass, facultyUID, studentDocId — NO grades
+    match /studentIndex/{enrollmentNo} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
+
   }
 }</pre>
+          <p style="font-size:.75rem;color:var(--amb);margin-top:.6rem;line-height:1.6">⚠️ <strong>After updating rules</strong>, faculty must re-save each student (Edit → Save) once so their record appears in the studentIndex. New students added after this fix work automatically.</p>
         </div>
         <div class="settings-grid">
           <div class="settings-card">
@@ -900,12 +906,12 @@ service cloud.firestore {
 // FIREBASE CONFIG — PASTE YOURS HERE
 // ══════════════════════════════════════════════════════════════════════════════
 const firebaseConfig = {
-  apiKey:            "PASTE_YOUR_API_KEY",
-  authDomain:        "PASTE_YOUR_AUTH_DOMAIN",
-  projectId:         "PASTE_YOUR_PROJECT_ID",
-  storageBucket:     "PASTE_YOUR_STORAGE_BUCKET",
-  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
-  appId:             "PASTE_YOUR_APP_ID"
+  apiKey: "AIzaSyD3Yi_B9ZU3uLDlACe8fZh30lpVX30_ELo",
+  authDomain: "smart-student-ms.firebaseapp.com",
+  projectId: "smart-student-ms",
+  storageBucket: "smart-student-ms.firebasestorage.app",
+  messagingSenderId: "62321500469",
+  appId: "1:62321500469:web:1331146f541f1504ebec7c"
 };
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -1012,6 +1018,12 @@ function switchRole(role) {
 //  Student enters Enrollment No. → we search ALL faculty accounts' student collections
 //  via a collectionGroup query → find the matching record → verify password locally.
 //  This keeps the system serverless — no separate Firebase Auth account needed per student.
+// ── STUDENT LOGIN ─────────────────────────────────────────────────────────────
+// HOW IT WORKS (No collectionGroup, no special index needed):
+//  When faculty saves a student, we ALSO write a small public record to
+//  'studentIndex/{enrollmentNo}' containing: name, stuPass, facultyUID.
+//  Student login queries ONLY this public collection — simple, no permissions issue.
+//  On success, we then read the full record from the faculty's private collection.
 async function doStudentLogin() {
   if (!IS_CONFIGURED) { doDemoStudent(); return; }
   const enroll = document.getElementById('stuEnroll').value.trim().toUpperCase();
@@ -1021,25 +1033,54 @@ async function doStudentLogin() {
   showErr('');
   document.getElementById('authSuccess').textContent = '🔍 Looking up your record...';
   try {
-    // Query across all faculty collections using collectionGroup
-    const snap = await db.collectionGroup('students')
-                         .where('studentId', '==', enroll)
-                         .limit(1)
-                         .get();
-    if (snap.empty) { showErr('❌ Enrollment number not found. Contact your faculty.'); setAuthBtns(false); document.getElementById('authSuccess').textContent=''; return; }
-    const doc  = snap.docs[0];
-    const data = { id: doc.id, ...doc.data() };
-    data.cgpa  = calcCGPA(data);
-    // Verify password
-    if (!data.stuPass || data.stuPass !== pass) {
-      showErr('❌ Incorrect password. Contact your faculty to reset it.');
-      setAuthBtns(false); document.getElementById('authSuccess').textContent=''; return;
+    // Step 1: Check public studentIndex collection (no auth required)
+    const indexDoc = await db.collection('studentIndex').doc(enroll).get();
+    if (!indexDoc.exists) {
+      showErr('❌ Enrollment number not found. Ask your faculty to re-save your record.');
+      setAuthBtns(false); document.getElementById('authSuccess').textContent = ''; return;
     }
+    const idx = indexDoc.data();
+    // Step 2: Verify password
+    if (!idx.stuPass || idx.stuPass !== pass) {
+      showErr('❌ Incorrect password. Contact your faculty to reset it.');
+      setAuthBtns(false); document.getElementById('authSuccess').textContent = ''; return;
+    }
+    // Step 3: Read full student record from faculty's private collection
+    const fullDoc = await db.collection('users').doc(idx.facultyUID)
+                             .collection('students').doc(idx.studentDocId).get();
+    if (!fullDoc.exists) {
+      showErr('❌ Student record not found. Contact your faculty.');
+      setAuthBtns(false); document.getElementById('authSuccess').textContent = ''; return;
+    }
+    const data = { id: fullDoc.id, ...fullDoc.data() };
+    data.cgpa = calcCGPA(data);
     currentStudentData = data;
     document.getElementById('authSuccess').textContent = '';
     showStudentPortal(data);
   } catch(e) {
-    showErr('❌ Error: '+e.message);
+    // Fallback: if studentIndex doesn't exist yet, try collectionGroup
+    try {
+      document.getElementById('authSuccess').textContent = '🔄 Trying alternate lookup...';
+      const snap = await db.collectionGroup('students')
+                           .where('studentId', '==', enroll).limit(1).get();
+      if (snap.empty) {
+        showErr('❌ Enrollment number not found. Contact your faculty.');
+        setAuthBtns(false); document.getElementById('authSuccess').textContent = ''; return;
+      }
+      const doc  = snap.docs[0];
+      const data = { id: doc.id, ...doc.data() };
+      data.cgpa  = calcCGPA(data);
+      if (!data.stuPass || data.stuPass !== pass) {
+        showErr('❌ Incorrect password. Contact your faculty.');
+        setAuthBtns(false); document.getElementById('authSuccess').textContent = ''; return;
+      }
+      currentStudentData = data;
+      document.getElementById('authSuccess').textContent = '';
+      showStudentPortal(data);
+    } catch(e2) {
+      showErr('❌ Login failed: ' + friendlyAuthErr(e2));
+      setAuthBtns(false); document.getElementById('authSuccess').textContent = '';
+    }
   } finally {
     setAuthBtns(false);
   }
@@ -1865,13 +1906,28 @@ async function saveStudent() {
   const ref = studentsRef();
   if (!ref) { toast('❌ Not authenticated','error'); return; }
   try {
+    let studentDocId = editId;
     if (editId) {
       await ref.doc(editId).update(data);
       toast('✅ Student updated!','success');
     } else {
       data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      await ref.add(data);
+      const newDoc = await ref.add(data);
+      studentDocId = newDoc.id;
       toast('🎉 Student added!','success');
+    }
+    // ── Write public studentIndex record so student login works without collectionGroup ──
+    // studentIndex/{enrollmentNo} is publicly readable — no auth required to query it.
+    // It only stores: name, stuPass, facultyUID, studentDocId (no grades/personal data).
+    if (data.studentId) {
+      await db.collection('studentIndex').doc(data.studentId).set({
+        name:         data.name,
+        stuPass:      data.stuPass || data.studentId.toLowerCase(),
+        facultyUID:   currentUID,
+        studentDocId: studentDocId,
+        branch:       data.branch || '',
+        updatedAt:    firebase.firestore.FieldValue.serverTimestamp(),
+      });
     }
     closeModal();
   } catch(e) { toast('❌ Error: '+e.message,'error'); }
@@ -1884,7 +1940,16 @@ async function deleteStudent(id,name) {
     toast('🗑️ Student removed (demo mode)','info'); return;
   }
   const ref=studentsRef(); if(!ref) return;
-  try { await ref.doc(id).delete(); toast('🗑️ Student deleted','info'); }
+  try {
+    // Find the student's enrollment number before deleting
+    const s = allStudents.find(x=>x.id===id);
+    await ref.doc(id).delete();
+    // Also remove from public studentIndex
+    if (s && s.studentId) {
+      await db.collection('studentIndex').doc(s.studentId).delete().catch(()=>{});
+    }
+    toast('🗑️ Student deleted','info');
+  }
   catch(e) { toast('❌ Error: '+e.message,'error'); }
 }
 
