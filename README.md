@@ -67,3 +67,6 @@ git push
 ![App Screenshot](login.png)
 ![App Screenshot](demo.png)
 ![App Screenshot](std1.png)
+
+
+"update today --- The student section so any one can login using their Enrollment number and password given  by faculty"
